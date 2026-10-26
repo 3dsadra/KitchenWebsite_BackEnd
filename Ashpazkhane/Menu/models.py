@@ -3,8 +3,8 @@ from django.core.exceptions import ValidationError
 
 
 class MonthlyMenu(models.Model):
-    year = models.PositiveIntegerField()
-    month = models.PositiveSmallIntegerField()  # 1-12
+    year = models.PositiveIntegerField() #سال
+    month = models.PositiveSmallIntegerField()  # 1-12 month
 
     class Meta:
         unique_together = ('year', 'month')

@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages 
 
 def homepage(request):
-    return render(request, "home.html")
+    return render(request, "home.html") # Placeholder
 
 def login_v(request):
     if request.method == 'POST':
@@ -15,12 +15,12 @@ def login_v(request):
             login(request, user)
             return redirect('/')
         else:
-            messages.error(request, "Entered Information Is Wrong.")
+            messages.error(request, "اطلاعات وارد شده نادرست است.")
             return render(request, 'users/login.html')
     
     return render(request, 'users/login.html')
 
 def logout_v(request):
     logout(request)
-    messages.info(request, 'You have been logged out.')
+    messages.info(request, 'شما خارج شدید.')
     return redirect("/")
