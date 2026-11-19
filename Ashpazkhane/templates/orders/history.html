@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}خریدهای من | آشپزخانه{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="page-head">
+            <div>
+                <h1 class="page-title">خریدهای من</h1>
+                <p class="page-lead">فهرست وعده‌هایی که تا امروز پرداخت کرده‌اید.</p>
+            </div>
+            <a class="btn btn--secondary btn--sm" href="{% url 'home' %}#menu">دیدن منوی ماه</a>
+        </div>
+
+        {% if orders %}
+            <div class="history">
+                {% for order in orders %}
+                    <article class="history-card">
+                        <header class="history-card__head">
+                            <div>
+                                <h2 class="history-card__title">سفارش شمارهٔ {{ order.pk }}</h2>
+                                <p class="history-card__meta">
+                                    {{ order.paid_at_fa }}
+                                    {% if order.ref_id %}— کد پیگیری: {{ order.ref_id_fa }}{% endif %}
+                                </p>
+                            </div>
+                            <span class="history-card__amount">{{ order.amount_fa }}</span>
+                        </header>
+
+                        <ul class="history-list">
+                            {% for item in order.items.all %}
+                                <li>
+                                    <span class="history-list__date">{{ item.date_label }}</span>
+                                    <span class="history-list__name">{{ item.name }}</span>
+                                    <span class="history-list__cost">{{ item.cost_fa }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>هنوز خریدی ثبت نشده است</h3>
+                <p>پس از پرداخت اولین سفارش، اطلاعات آن در این صفحه نمایش داده می‌شود.</p>
+                <a class="btn btn--primary" href="{% url 'home' %}#menu">دیدن منوی ماه</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

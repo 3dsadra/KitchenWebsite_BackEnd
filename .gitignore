@@ -1,0 +1,21 @@
+# فایل‌های محرمانه و محلی
+.env
+.env.*
+!.env.example
+
+# دیتابیس و خروجی‌ها
+db.sqlite3
+db.sqlite3-*
+*.xlsx
+staticfiles/
+
+# پایتون
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ابزارها
+.idea/
+.vscode/
+.DS_Store

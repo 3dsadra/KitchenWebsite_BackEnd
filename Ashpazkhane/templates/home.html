@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}آشپزخانه | منوی {{ selected_label }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero__inner">
+        <div class="hero__copy">
+            <h1 class="hero__title">منوی ماهانهٔ آشپزخانه</h1>
+            <p class="hero__lead">
+                در این صفحه می‌توانید وعدهٔ هر روز ماه و قیمت آن را ببینید.
+                وعدهٔ امروز هم جداگانه در کنار همین بخش نمایش داده شده است.
+            </p>
+            <div class="hero__actions">
+                <a class="btn btn--primary" href="#menu">دیدن منوی ماه</a>
+                <a class="btn btn--secondary" href="#today">وعدهٔ امروز</a>
+            </div>
+        </div>
+
+        <aside class="today" id="today">
+            <div class="today__head">
+                <span class="today__label">وعدهٔ امروز</span>
+                <span class="today__date">{{ today_fa }}</span>
+            </div>
+
+            {% if today_meal %}
+                <h2 class="today__name">{{ today_meal.name }}</h2>
+                <p class="today__price">{{ today_meal.cost_fa }}</p>
+                <p class="today__note">این وعده امروز در آشپزخانه سرو می‌شود.</p>
+            {% elif today_is_off %}
+                <p class="today__empty">امروز آشپزخانه تعطیل است.</p>
+                <p class="today__note">پنجشنبه و جمعه غذا سرو نمی‌شود.</p>
+            {% else %}
+                <p class="today__empty">برای امروز وعده‌ای ثبت نشده است.</p>
+                <p class="today__note">منوی روزهای دیگر ماه را در پایین صفحه ببینید.</p>
+            {% endif %}
+
+            <a class="today__link" href="#menu">دیدن منوی کامل ماه ←</a>
+        </aside>
+    </div>
+</section>
+
+<section class="section" id="menu">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">منوی {{ selected_label }}</h2>
+                <p class="section-lead">نام غذا و قیمت هر روز در کادر همان روز نوشته شده است.</p>
+            </div>
+
+            <div class="month-switch">
+                {% if prev_url %}
+                    <a class="btn btn--secondary btn--sm" href="{{ prev_url }}#menu">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m10 6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        ماه قبل
+                    </a>
+                {% else %}
+                    <span class="btn btn--secondary btn--sm is-disabled">ماه قبل</span>
+                {% endif %}
+
+                <span class="month-switch__label">
+                    {{ selected_label }}
+                    {% if selected_is_current %}<span class="badge">ماه جاری</span>{% endif %}
+                </span>
+
+                {% if next_url %}
+                    <a class="btn btn--secondary btn--sm" href="{{ next_url }}#menu">
+                        ماه بعد
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14 6-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                {% else %}
+                    <span class="btn btn--secondary btn--sm is-disabled">ماه بعد</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if selected %}
+            <div class="summary">
+                <div class="summary__item">
+                    <span>وعده‌های این ماه</span>
+                    <strong>{{ meals_count_fa }} وعده</strong>
+                </div>
+                <div class="summary__item">
+                    <span>وعده‌های قابل خرید</span>
+                    <strong>{{ buyable_count_fa }} وعده</strong>
+                </div>
+                <div class="summary__item">
+                    <span>وعده‌های خریداری‌شده</span>
+                    <strong>{{ paid_count_fa }} وعده</strong>
+                </div>
+            </div>
+
+            <div class="buy-bar">
+                <div class="buy-bar__text">
+                    {% if not user.is_authenticated %}
+                        برای خرید وعده‌ها ابتدا وارد حساب کاربری خود شوید.
+                    {% elif buyable_count %}
+                        می‌توانید روزهای موردنظر را جداگانه اضافه کنید یا همهٔ {{ buyable_count_fa }} وعدهٔ قابل خرید را یک‌جا به سبد ببرید.
+                    {% else %}
+                        برای این ماه وعدهٔ قابل خریدی باقی نمانده است.
+                    {% endif %}
+                </div>
+
+                <div class="buy-bar__actions">
+                    {% if user.is_authenticated %}
+                        {% if buyable_count %}
+                            <form method="post" action="{% url 'orders:add_month' selected.pk %}">
+                                {% csrf_token %}
+                                <button class="btn btn--secondary btn--sm" type="submit">
+                                    افزودن کل ماه ({{ buyable_total_fa }})
+                                </button>
+                            </form>
+                        {% endif %}
+                        {% if selected_in_cart_total %}
+                            <a class="btn btn--primary btn--sm" href="{% url 'orders:cart' %}">
+                                دیدن سبد خرید ({{ selected_in_cart_total_fa }})
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <a class="btn btn--primary btn--sm" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">ورود برای خرید</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="menu-panel">
+                <div class="calendar__head" aria-hidden="true">
+                    {% for weekday in weekdays %}<span>{{ weekday }}</span>{% endfor %}
+                </div>
+
+                <div class="menu-grid">
+                    {% for cell in cells %}
+                        {% if cell.blank %}
+                            <span class="day-blank" aria-hidden="true"></span>
+                        {% else %}
+                            <div class="day{% if cell.is_today %} day--today{% endif %}{% if cell.is_past %} day--past{% endif %}{% if cell.is_off %} day--off{% endif %}{% if cell.is_closed and not cell.is_past %} day--closed{% endif %}{% if cell.is_full %} day--full{% endif %}{% if not cell.has_meal and not cell.is_off %} day--empty{% endif %}{% if cell.is_paid %} day--paid{% endif %}{% if cell.in_cart %} day--cart{% endif %}">
+                                <div class="day__top">
+                                    <span class="day__num">{{ cell.jalali_day }}</span>
+                                    <span class="day__weekday">{{ cell.weekday }}</span>
+                                    {% if cell.is_today %}<span class="day__badge">امروز</span>{% endif %}
+                                </div>
+
+                                {% if cell.is_off %}
+                                    <p class="day__meal day__meal--empty">تعطیل</p>
+                                {% elif cell.has_meal %}
+                                    <p class="day__meal">{{ cell.name }}</p>
+                                    <p class="day__price">{{ cell.cost_short }} تومان</p>
+                                    {% if cell.capacity %}
+                                        <p class="day__cap">ظرفیت باقی: {{ cell.remaining_fa }} از {{ cell.capacity_fa }}</p>
+                                    {% endif %}
+                                {% else %}
+                                    <p class="day__meal day__meal--empty">بدون وعده</p>
+                                {% endif %}
+
+                                {% if cell.has_meal %}
+                                    <div class="day__foot">
+                                        {% if cell.is_paid %}
+                                            <span class="day__state day__state--paid">خریداری‌شده</span>
+                                        {% elif cell.in_cart %}
+                                            <a class="day__state day__state--cart" href="{% url 'orders:cart' %}">در سبد خرید</a>
+                                        {% elif cell.is_past %}
+                                            <span class="day__state">گذشته</span>
+                                        {% elif cell.is_closed %}
+                                            <span class="day__state">مهلت تمام شد</span>
+                                        {% elif cell.is_full %}
+                                            <span class="day__state">ظرفیت تکمیل</span>
+                                        {% elif not user.is_authenticated %}
+                                            <a class="day__buy" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">خرید</a>
+                                        {% else %}
+                                            <form method="post" action="{% url 'orders:add' selected.pk cell.day %}">
+                                                {% csrf_token %}
+                                                <button class="day__buy" type="submit">افزودن به سبد</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <p class="menu-note">پنجشنبه و جمعه آشپزخانه تعطیل است. مهلت خرید هر وعده {{ cutoff_label }} است و بعد از آن، آن روز بسته می‌شود. برای خرید باید وارد حساب کاربری شوید.</p>
+        {% else %}
+            <div class="empty-state">
+                <h3>هنوز منویی برای این ماه ثبت نشده است</h3>
+                <p>به‌محض آماده‌شدن منوی ماهانه، همین‌جا نمایش داده می‌شود.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section section--help" id="help">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <h2 class="section-title">راهنمای استفاده</h2>
+                <p class="section-lead">در چهار مرحلهٔ ساده، منوی موردنظر خود را پیدا و خریداری کنید.</p>
+            </div>
+        </div>
+
+        <ol class="help-grid">
+            <li class="help-item">
+                <span class="help-item__num">۱</span>
+                <h3>ماه را انتخاب کنید</h3>
+                <p>با دکمه‌های «ماه قبل» و «ماه بعد» منوی ماه‌های دیگر را ببینید.</p>
+            </li>
+            <li class="help-item">
+                <span class="help-item__num">۲</span>
+                <h3>وعدهٔ هر روز را ببینید</h3>
+                <p>نام غذا و قیمت آن، داخل کادر همان روز نوشته شده است.</p>
+            </li>
+            <li class="help-item">
+                <span class="help-item__num">۳</span>
+                <h3>روزها را به سبد اضافه کنید</h3>
+                <p>روی «افزودن به سبد» هر روز بزنید. می‌توانید چند روز یا کل ماه را یک‌جا انتخاب کنید.</p>
+            </li>
+            <li class="help-item">
+                <span class="help-item__num">۴</span>
+                <h3>در سبد خرید پرداخت کنید</h3>
+                <p>به سبد خرید بروید و مبلغ کل را از طریق درگاه پرداخت کنید.</p>
+            </li>
+        </ol>
+    </div>
+</section>
+
+{% if not user.is_authenticated %}
+<section class="section">
+    <div class="container">
+        <div class="callout">
+            <div>
+                <h2>برای ورود به حساب کاربری</h2>
+                <p>می توانید با کدملی خود و رمز عبوری که به شما داده شده وارد سیستم بشوید.</p>
+            </div>
+            <a class="btn btn--primary" href="{% url 'login' %}">ورود به حساب</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

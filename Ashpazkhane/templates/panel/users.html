@@ -1,0 +1,93 @@
+{% extends "panel/base.html" %}
+
+{% block title %}کاربران | پنل مدیریت{% endblock %}
+{% block panel_title %}کاربران{% endblock %}
+{% block panel_lead %}کاربر جدید بسازید، رمز عبور را تغییر دهید یا حساب را غیرفعال کنید.{% endblock %}
+
+{% block panel_content %}
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">ساخت کاربر جدید</h2>
+        <span class="panel-card__hint">کد ملی همان نام کاربری ورود است.</span>
+    </div>
+
+    <form method="post" class="panel-form">
+        {% csrf_token %}
+        <div class="form-grid">
+            <label class="filter-field">
+                <span>نام</span>
+                <input type="text" name="first_name" maxlength="150" value="{{ form.first_name }}" required>
+            </label>
+            <label class="filter-field">
+                <span>نام خانوادگی</span>
+                <input type="text" name="last_name" maxlength="150" value="{{ form.last_name }}" required>
+            </label>
+            <label class="filter-field">
+                <span>کد ملی</span>
+                <input type="text" name="national_code" inputmode="numeric" maxlength="10" value="{{ form.national_code }}" placeholder="۱۰ رقم" required>
+            </label>
+            <label class="filter-field">
+                <span>رمز عبور</span>
+                <input type="text" name="password" minlength="8" maxlength="128" placeholder="حداقل ۸ نویسه" autocomplete="new-password" required>
+            </label>
+        </div>
+
+        {% if user.is_superuser %}
+            <label class="check-field">
+                <input type="checkbox" name="is_staff" {% if form.is_staff %}checked{% endif %}>
+                <span>این کاربر به پنل مدیریت دسترسی داشته باشد</span>
+            </label>
+        {% endif %}
+
+        <div class="panel-form__actions">
+            <button class="btn btn--primary btn--sm" type="submit">ساخت کاربر</button>
+        </div>
+    </form>
+</div>
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">فهرست کاربران</h2>
+        <span class="panel-card__hint">{{ count }} کاربر</span>
+    </div>
+
+    <form class="panel-search" method="get" action="{% url 'panel_users' %}">
+        <input type="search" name="q" value="{{ query }}" placeholder="جست‌وجو با نام یا کد ملی">
+        <button class="btn btn--secondary btn--sm" type="submit">جست‌وجو</button>
+        {% if query %}<a class="panel-link" href="{% url 'panel_users' %}">پاک کردن</a>{% endif %}
+    </form>
+
+    {% if user_rows %}
+        <div class="panel-table-wrap">
+            <table class="panel-table panel-table--users">
+                <thead>
+                    <tr>
+                        <th>نام</th>
+                        <th>کد ملی</th>
+                        <th>نقش</th>
+                        <th>وضعیت</th>
+                        <th>تاریخ عضویت</th>
+                        <th>آخرین ورود</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in user_rows %}
+                        <tr>
+                            <td><span class="cell-title">{{ row.name }}</span></td>
+                            <td class="cell-code">{{ row.code_fa }}</td>
+                            <td>{% if row.is_staff %}<span class="tag tag--brand">مدیر</span>{% else %}دانش‌آموز{% endif %}</td>
+                            <td>{% if row.is_active %}<span class="tag">فعال</span>{% else %}<span class="tag tag--off">غیرفعال</span>{% endif %}</td>
+                            <td class="cell-nowrap">{{ row.joined_fa }}</td>
+                            <td class="cell-nowrap">{{ row.last_login_fa }}</td>
+                            <td class="cell-nowrap"><a class="table-link" href="{% url 'panel_user_detail' row.id %}">مدیریت</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="panel-empty">کاربری با این مشخصات پیدا نشد.</p>
+    {% endif %}
+</div>
+{% endblock %}

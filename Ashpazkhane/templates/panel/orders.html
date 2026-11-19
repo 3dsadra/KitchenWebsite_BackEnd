@@ -1,0 +1,159 @@
+{% extends "panel/base.html" %}
+
+{% block title %}سفارش‌ها | پنل مدیریت{% endblock %}
+{% block panel_title %}سفارش‌ها و گزارش خرید{% endblock %}
+{% block panel_lead %}خریدهای پرداخت‌شده را بر اساس روز، هفته یا ماه ببینید و خروجی اکسل بگیرید.{% endblock %}
+
+{% block panel_content %}
+<div class="filter-tabs">
+    {% for key, label in period_labels.items %}
+        <a class="filter-tab {% if params.period == key and not params.month %}is-active{% endif %}"
+           href="{% url 'panel_orders' %}?period={{ key }}{% if params.q %}&q={{ params.q|urlencode }}{% endif %}">{{ label }}</a>
+    {% endfor %}
+</div>
+
+<form class="panel-filters" method="get" action="{% url 'panel_orders' %}">
+    <input type="hidden" name="period" value="{{ params.period }}">
+
+    <label class="filter-field">
+        <span>ماه</span>
+        <select name="month">
+            <option value="">همه ماه‌ها</option>
+            {% for menu in menus %}
+                <option value="{{ menu.key }}" {% if params.month == menu.key %}selected{% endif %}>{{ menu.label_fa }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <label class="filter-field">
+        <span>روز</span>
+        <select name="day">
+            <option value="">همه روزها</option>
+            {% for option in day_options %}
+                <option value="{{ option.value }}" {% if option.selected %}selected{% endif %}>{{ option.label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <label class="filter-field filter-field--grow">
+        <span>جست‌وجوی دانش‌آموز</span>
+        <input type="search" name="q" value="{{ params.q }}" placeholder="نام، نام خانوادگی یا کد ملی">
+    </label>
+
+    <div class="filter-actions">
+        <button class="btn btn--primary btn--sm" type="submit">نمایش</button>
+        <a class="btn btn--secondary btn--sm" href="{% url 'panel_orders' %}">پاک کردن</a>
+    </div>
+</form>
+
+<div class="export-bar">
+    <div class="export-bar__text">
+        {% if params.month %}
+            گزارش ماه {{ month_label_value }}{% if params.day %}، روز {{ day_fa }}{% endif %}
+        {% else %}
+            گزارش «{% for key, label in period_labels.items %}{% if params.period == key %}{{ label }}{% endif %}{% endfor %}»
+        {% endif %}
+        {% if params.q %}— جست‌وجو: «{{ params.q }}»{% endif %}
+    </div>
+    <div class="export-bar__actions">
+        {% if is_day_filter and params.month %}
+            <a class="btn btn--secondary btn--sm" href="{% url 'panel_orders' %}?period={{ params.period }}&month={{ params.month }}&day={{ params.day }}&q={{ params.q|urlencode }}&delivery=xlsx">
+                لیست تحویل روز (اکسل)
+            </a>
+        {% endif %}
+        <a class="btn btn--primary btn--sm" href="{% url 'panel_orders' %}?period={{ params.period }}&month={{ params.month }}&day={{ params.day }}&q={{ params.q|urlencode }}&export=xlsx">
+            خروجی اکسل
+        </a>
+    </div>
+</div>
+
+<div class="stat-grid stat-grid--compact">
+    <article class="stat-card">
+        <span class="stat-card__label">تعداد افراد</span>
+        <strong class="stat-card__value">{{ summary.people_fa }} <span>نفر</span></strong>
+    </article>
+    <article class="stat-card">
+        <span class="stat-card__label">تعداد وعده</span>
+        <strong class="stat-card__value">{{ summary.meals_fa }} <span>وعده</span></strong>
+    </article>
+    <article class="stat-card">
+        <span class="stat-card__label">مبلغ کل</span>
+        <strong class="stat-card__value stat-card__value--small">{{ summary.total_fa }}</strong>
+    </article>
+</div>
+
+{% if groups %}
+    <div class="panel-card">
+        <div class="panel-card__head">
+            <h2 class="panel-card__title">خلاصهٔ روزها</h2>
+            <span class="panel-card__hint">برای دیدن افراد هر روز، روی تاریخ بزنید.</span>
+        </div>
+        <div class="panel-table-wrap">
+            <table class="panel-table">
+                <thead>
+                    <tr>
+                        <th>تاریخ</th>
+                        <th>روز</th>
+                        <th>تعداد افراد</th>
+                        <th>تعداد وعده</th>
+                        <th>مبلغ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in groups %}
+                        <tr>
+                            <td>
+                                <a class="table-link" href="{% url 'panel_orders' %}?month={{ group.month }}&day={{ group.jalali.2 }}{% if params.q %}&q={{ params.q|urlencode }}{% endif %}">{{ group.date_fa }}</a>
+                            </td>
+                            <td>{{ group.weekday }}</td>
+                            <td>{{ group.people_fa }} نفر</td>
+                            <td>{{ group.meals_fa }} وعده</td>
+                            <td class="cell-nowrap">{{ group.total_fa }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">
+            {% if is_day_filter %}افراد این روز{% else %}جزئیات سفارش‌ها{% endif %}
+        </h2>
+        <span class="panel-card__hint">{{ summary.meals_fa }} ردیف</span>
+    </div>
+
+    {% if rows %}
+        <div class="panel-table-wrap">
+            <table class="panel-table panel-table--details">
+                <thead>
+                    <tr>
+                        <th>دانش‌آموز</th>
+                        <th>کد ملی</th>
+                        <th>غذا</th>
+                        <th>تاریخ</th>
+                        <th>مبلغ</th>
+                        <th>کد پیگیری</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            <td><span class="cell-title">{{ row.name }}</span></td>
+                            <td class="cell-code">{{ row.code_fa }}</td>
+                            <td>{{ row.meal }}</td>
+                            <td class="cell-nowrap">{{ row.date_fa }}</td>
+                            <td class="cell-nowrap">{{ row.cost_fa }}</td>
+                            <td class="cell-code">{{ row.ref_id_fa }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="panel-empty">برای این فیلتر سفارشی پیدا نشد.</p>
+    {% endif %}
+</div>
+{% endblock %}

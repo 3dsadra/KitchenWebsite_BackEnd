@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}سبد خرید | آشپزخانه{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="page-head">
+            <div>
+                <h1 class="page-title">سبد خرید</h1>
+                <p class="page-lead">وعده‌هایی که انتخاب کرده‌اید در این جدول آمده است. پس از بررسی، مبلغ را پرداخت کنید.</p>
+            </div>
+            <a class="btn btn--secondary btn--sm" href="{% url 'home' %}#menu">بازگشت به منو</a>
+        </div>
+
+        {% if items %}
+            <div class="cart-layout">
+                <div class="cart-main">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">تاریخ</th>
+                                <th scope="col">غذا</th>
+                                <th scope="col">قیمت</th>
+                                <th scope="col"><span class="visually-hidden">حذف</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td class="cart-table__date">{{ item.date_label }}</td>
+                                    <td>{{ item.name }}</td>
+                                    <td class="cart-table__cost">{{ item.cost_fa }}</td>
+                                    <td class="cart-table__action">
+                                        <form method="post" action="{% url 'orders:remove' item.pk %}">
+                                            {% csrf_token %}
+                                            <button class="link-danger" type="submit">حذف</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <aside class="cart-summary">
+                    <h2 class="cart-summary__title">جمع سفارش</h2>
+                    <div class="cart-summary__row">
+                        <span>تعداد وعده</span>
+                        <strong>{{ items_count_fa }}</strong>
+                    </div>
+                    <div class="cart-summary__row cart-summary__row--total">
+                        <span>مبلغ قابل پرداخت</span>
+                        <strong>{{ total_fa }}</strong>
+                    </div>
+
+                    <form method="post" action="{% url 'orders:checkout' %}">
+                        {% csrf_token %}
+                        <button class="btn btn--primary btn--block" type="submit">پرداخت آنلاین</button>
+                    </form>
+
+                    {% if is_sandbox %}
+                        <p class="cart-summary__note">پرداخت در حالت آزمایشی (Sandbox) انجام می‌شود و مبلغی از حساب شما کسر نمی‌شود.</p>
+                    {% endif %}
+                </aside>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>سبد خرید شما خالی است</h3>
+                <p>از منوی ماه، روز موردنظر را به سبد خرید اضافه کنید.</p>
+                <a class="btn btn--primary" href="{% url 'home' %}#menu">دیدن منوی ماه</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

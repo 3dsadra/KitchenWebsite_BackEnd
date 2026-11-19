@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}پرداخت موفق | آشپزخانه{% endblock %}
+{% block messages %}{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="success-card">
+            <span class="success-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <h1 class="success-card__title">پرداخت با موفقیت انجام شد</h1>
+            <p class="success-card__lead">وعده‌های زیر برای شما ثبت شد. می‌توانید هر زمان آن‌ها را در بخش «خریدهای من» ببینید.</p>
+
+            <div class="success-card__meta">
+                <div>
+                    <span>مبلغ پرداخت‌شده</span>
+                    <strong>{{ total_fa }}</strong>
+                </div>
+                {% if order.ref_id %}
+                    <div>
+                        <span>کد پیگیری</span>
+                        <strong>{{ order.ref_id_fa }}</strong>
+                    </div>
+                {% endif %}
+            </div>
+
+            <ul class="success-list">
+                {% for item in items %}
+                    <li>
+                        <span class="history-list__date">{{ item.date_label }}</span>
+                        <span class="history-list__name">{{ item.name }}</span>
+                        <span class="history-list__cost">{{ item.cost_fa }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="success-card__actions">
+                <a class="btn btn--primary" href="{% url 'orders:history' %}">خریدهای من</a>
+                <a class="btn btn--secondary" href="{% url 'home' %}#menu">بازگشت به منو</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="آشپزخانه">
+    <rect width="64" height="64" rx="14" fill="#20664e"/>
+    <g transform="scale(2)">
+        <path d="M12.4 9.2c-1.4-1.4-1.4-2.7 0-4.1M19.6 9.2c-1.4-1.4-1.4-2.7 0-4.1" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M14 10.7h4" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M8.5 15.3c0-2.9 3.1-5 7.5-5s7.5 2.1 7.5 5Z" fill="#ffffff"/>
+        <path d="M6.6 16.5h18.8l-1.8 7.8a3.2 3.2 0 0 1-3.1 2.5H11.5a3.2 3.2 0 0 1-3.1-2.5Z" fill="#ffffff"/>
+        <path d="M5.2 18.7c-1.6.1-2.4 1-2.4 2.3s.8 2.2 2.4 2.3M26.8 18.7c1.6.1 2.4 1 2.4 2.3s-.8 2.2-2.4 2.3" fill="none" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round"/>
+    </g>
+</svg>

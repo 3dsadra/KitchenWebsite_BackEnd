@@ -1,0 +1,102 @@
+{% extends "panel/base.html" %}
+
+{% block title %}پرداخت‌ها | پنل مدیریت{% endblock %}
+{% block panel_title %}پرداخت‌ها{% endblock %}
+{% block panel_lead %}سفارش‌های در انتظار پرداخت را بررسی کنید و تاریخچهٔ تلاش‌های پرداخت را ببینید.{% endblock %}
+
+{% block panel_content %}
+{% if is_sandbox %}
+    <div class="notice notice--info">
+        درگاه پرداخت روی حالت آزمایشی (Sandbox) است؛ مبالغ واقعی کسر نمی‌شود.
+    </div>
+{% endif %}
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">سفارش‌های در انتظار پرداخت</h2>
+        <span class="panel-card__hint">اگر دانش‌آموز پول داده ولی سفارش ثبت نشده، «بررسی پرداخت» را بزنید.</span>
+    </div>
+
+    {% if pending %}
+        <div class="panel-table-wrap">
+            <table class="panel-table">
+                <thead>
+                    <tr>
+                        <th>دانش‌آموز</th>
+                        <th>کد ملی</th>
+                        <th>مبلغ</th>
+                        <th>تعداد وعده</th>
+                        <th>تاریخ ایجاد</th>
+                        <th>کد پرداخت</th>
+                        <th>بررسی</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in pending %}
+                        <tr>
+                            <td><span class="cell-title">{{ row.name }}</span></td>
+                            <td class="cell-code">{{ row.code_fa }}</td>
+                            <td class="cell-nowrap">{{ row.amount_fa }}</td>
+                            <td>{{ row.items_fa }}</td>
+                            <td class="cell-nowrap">{{ row.created_fa }}</td>
+                            <td class="cell-code">{{ row.authority|default:"—" }}</td>
+                            <td>
+                                {% if row.can_check %}
+                                    <form method="post" action="{% url 'panel_payment_check' row.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn--secondary btn--sm" type="submit">بررسی پرداخت</button>
+                                    </form>
+                                {% else %}
+                                    <span class="cell-code">بدون کد پرداخت</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="panel-empty">سفارش در انتظار پرداختی وجود ندارد.</p>
+    {% endif %}
+</div>
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">تاریخچهٔ تلاش‌های پرداخت</h2>
+        <span class="panel-card__hint">۸۰ مورد آخر</span>
+    </div>
+
+    {% if attempts %}
+        <div class="panel-table-wrap">
+            <table class="panel-table">
+                <thead>
+                    <tr>
+                        <th>زمان</th>
+                        <th>دانش‌آموز</th>
+                        <th>مبلغ</th>
+                        <th>وضعیت</th>
+                        <th>کد پیگیری</th>
+                        <th>کد درگاه</th>
+                        <th>توضیح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in attempts %}
+                        <tr>
+                            <td class="cell-nowrap">{{ row.created_fa }}</td>
+                            <td><span class="cell-title">{{ row.name }}</span></td>
+                            <td class="cell-nowrap">{{ row.amount_fa }}</td>
+                            <td><span class="tag {{ row.status_class }}">{{ row.status }}</span></td>
+                            <td class="cell-code">{{ row.ref_id }}</td>
+                            <td class="cell-code">{{ row.code }}</td>
+                            <td class="cell-note">{{ row.message|default:"—" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="panel-empty">هنوز تلاش پرداختی ثبت نشده است.</p>
+    {% endif %}
+</div>
+{% endblock %}

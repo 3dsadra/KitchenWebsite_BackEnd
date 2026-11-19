@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}ورود به حساب | آشپزخانه{% endblock %}
+{% block body_class %}page-auth{% endblock %}
+{% block messages %}{% endblock %}
+
+{% block content %}
+<section class="auth">
+    <div class="container auth__container">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <span class="brand__mark" aria-hidden="true">
+                    {% include "partials/logo_mark.html" %}
+                </span>
+                <span>
+                    <strong>آشپزخانه</strong>
+                    <small>دبیرستان علامه حلی 3</small>
+                </span>
+            </div>
+
+            <h1 class="auth-card__title">ورود به حساب</h1>
+            <p class="auth-card__lead">برای ورود، کد ملی و رمز عبور خود را وارد کنید.</p>
+
+            {% if messages %}
+                <div class="flash-stack">
+                    {% for message in messages %}
+                        <div class="flash flash--{{ message.tags }}" role="status">
+                            <span>{{ message }}</span>
+                            <button class="flash__close" type="button" aria-label="بستن پیام" data-flash-close>×</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" class="auth-form" data-auth-form>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <div class="field">
+                    <label for="username">کد ملی</label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="username"
+                        pattern="[0-9]{10}"
+                        maxlength="10"
+                        placeholder="مثلاً ۰۰۱۲۳۴۵۶۷۸"
+                        value="{{ national_code }}"
+                        required
+                        autofocus
+                    >
+                    <span class="field__hint">کد ملی باید ۱۰ رقم باشد.</span>
+                </div>
+
+                <div class="field">
+                    <label for="password">رمز عبور</label>
+                    <div class="field__password">
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="رمز عبور خود را وارد کنید"
+                            required
+                        >
+                        <button class="field__toggle" type="button" data-password-toggle>نمایش</button>
+                    </div>
+                </div>
+
+                <button class="btn btn--primary btn--block auth-submit" type="submit" data-auth-submit>
+                    <span class="auth-submit__text">ورود</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+            </form>
+
+            <p class="auth-help">
+                رمزعبور خود را فراموش کرده اید؟ به 3dsadra.h@gmail.com ایمیل بزنید
+            </p>
+            <a class="auth-back" href="{% url 'home' %}">بازگشت به صفحهٔ اصلی</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "panel/base.html" %}
+
+{% block title %}داشبورد مدیریت | آشپزخانه{% endblock %}
+{% block panel_title %}داشبورد مدیریت{% endblock %}
+{% block panel_lead %}{{ today_fa }}{% endblock %}
+
+{% block panel_content %}
+<div class="stat-grid">
+    {% for card in cards %}
+        <article class="stat-card">
+            <span class="stat-card__label">{{ card.label }}</span>
+            <strong class="stat-card__value">{{ card.people_fa }} <span>نفر</span></strong>
+            <p class="stat-card__meta">{{ card.meals_fa }} وعده — {{ card.total_fa }}</p>
+        </article>
+    {% endfor %}
+    <article class="stat-card stat-card--soft">
+        <span class="stat-card__label">همهٔ سفارش‌ها</span>
+        <strong class="stat-card__value">{{ total.people_fa }} <span>نفر</span></strong>
+        <p class="stat-card__meta">{{ total.meals_fa }} وعده — {{ total.total_fa }}</p>
+    </article>
+</div>
+
+<div class="panel-mini">
+    <a class="panel-mini__item" href="{% url 'panel_orders' %}">
+        <span>سفارش‌ها و خروجی اکسل</span>
+        <strong>مشاهده</strong>
+    </a>
+    <a class="panel-mini__item" href="{% url 'panel_finance' %}">
+        <span>گزارش مالی ماه‌به‌ماه</span>
+        <strong>درآمد</strong>
+    </a>
+    <a class="panel-mini__item" href="{% url 'panel_payments' %}">
+        <span>پرداخت‌ها و بررسی دستی</span>
+        <strong>پیگیری</strong>
+    </a>
+    <a class="panel-mini__item" href="{% url 'panel_users' %}">
+        <span>کاربران ({{ users_count }})</span>
+        <strong>مدیریت</strong>
+    </a>
+    <a class="panel-mini__item" href="{% url 'panel_menu' %}">
+        <span>منوهای ماهانه ({{ menus_count }})</span>
+        <strong>ویرایش</strong>
+    </a>
+</div>
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">آخرین سفارش‌ها</h2>
+        <a class="panel-link" href="{% url 'panel_orders' %}">همهٔ سفارش‌ها</a>
+    </div>
+
+    {% if latest %}
+        <div class="panel-table-wrap">
+            <table class="panel-table">
+                <thead>
+                    <tr>
+                        <th>دانش‌آموز</th>
+                        <th>غذا</th>
+                        <th>تاریخ</th>
+                        <th>مبلغ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in latest %}
+                        <tr>
+                            <td>
+                                <span class="cell-title">{{ row.name }}</span>
+                                <span class="cell-sub">{{ row.code_fa }}</span>
+                            </td>
+                            <td>{{ row.meal }}</td>
+                            <td class="cell-nowrap">{{ row.date_fa }}</td>
+                            <td class="cell-nowrap">{{ row.cost_fa }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="panel-empty">هنوز سفارش پرداخت‌شده‌ای ثبت نشده است.</p>
+    {% endif %}
+</div>
+{% endblock %}

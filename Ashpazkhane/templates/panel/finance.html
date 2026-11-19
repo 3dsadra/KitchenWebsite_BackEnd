@@ -1,0 +1,87 @@
+{% extends "panel/base.html" %}
+
+{% block title %}گزارش مالی | پنل مدیریت{% endblock %}
+{% block panel_title %}گزارش مالی{% endblock %}
+{% block panel_lead %}درآمد و تعداد وعده‌های هر ماه، مقایسه با ماه قبل و میزان پرشدن ظرفیت.{% endblock %}
+
+{% block panel_content %}
+<div class="stat-grid">
+    <article class="stat-card stat-card--soft">
+        <span class="stat-card__label">درآمد کل</span>
+        <strong class="stat-card__value stat-card__value--small">{{ total_income_fa }}</strong>
+    </article>
+    {% if current %}
+        <article class="stat-card">
+            <span class="stat-card__label">{{ current.label }}</span>
+            <strong class="stat-card__value stat-card__value--small">{{ current.total_fa }}</strong>
+            <p class="stat-card__meta">
+                {% if current.change is not None %}
+                    {% if current.change_up %}▲ {{ current.change_fa }}٪ بیشتر از ماه قبل{% elif current.change_down %}▼ {{ current.change_fa }}٪ کمتر از ماه قبل{% else %}بدون تغییر نسبت به ماه قبل{% endif %}
+                {% else %}
+                    ماه قبل درآمدی ثبت نشده است
+                {% endif %}
+            </p>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__label">وعده‌های {{ current.label }}</span>
+            <strong class="stat-card__value">{{ current.meals_fa }} <span>وعده</span></strong>
+            <p class="stat-card__meta">{{ current.people_fa }} دانش‌آموز — {{ current.days_fa }} روز</p>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__label">پرشدن ظرفیت</span>
+            <strong class="stat-card__value">{{ current.filled_fa }}{% if current.filled is not None %}٪{% endif %}</strong>
+            <p class="stat-card__meta">{{ current.meals_fa }} وعده از {{ current.capacity_fa }} ظرفیت</p>
+        </article>
+    {% endif %}
+</div>
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">درآمد ماه‌به‌ماه</h2>
+        <span class="panel-card__hint">ظرفیت هر ماه از مجموع ظرفیت روزهای منو محاسبه می‌شود.</span>
+    </div>
+
+    {% if month_rows %}
+        <div class="panel-table-wrap">
+            <table class="panel-table">
+                <thead>
+                    <tr>
+                        <th>ماه</th>
+                        <th>تعداد افراد</th>
+                        <th>تعداد وعده</th>
+                        <th>درآمد</th>
+                        <th>ظرفیت</th>
+                        <th>پرشدن</th>
+                        <th>نسبت به ماه قبل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in month_rows %}
+                        <tr>
+                            <td><span class="cell-title">{{ row.label }}</span></td>
+                            <td>{{ row.people_fa }} نفر</td>
+                            <td>{{ row.meals_fa }} وعده</td>
+                            <td class="cell-nowrap">{{ row.total_fa }}</td>
+                            <td class="cell-nowrap">{{ row.capacity_fa }}</td>
+                            <td class="cell-nowrap">{{ row.filled_fa }}{% if row.filled is not None %}٪{% endif %}</td>
+                            <td class="cell-nowrap">
+                                {% if row.change is None %}
+                                    —
+                                {% elif row.change_up %}
+                                    <span class="trend trend--up">▲ {{ row.change_fa }}٪</span>
+                                {% elif row.change_down %}
+                                    <span class="trend trend--down">▼ {{ row.change_fa }}٪</span>
+                                {% else %}
+                                    <span class="trend">بدون تغییر</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="panel-empty">هنوز سفارش پرداخت‌شده‌ای ثبت نشده است.</p>
+    {% endif %}
+</div>
+{% endblock %}

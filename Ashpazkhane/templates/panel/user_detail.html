@@ -1,0 +1,106 @@
+{% extends "panel/base.html" %}
+
+{% block title %}{{ target_name }} | پنل مدیریت{% endblock %}
+{% block panel_title %}{{ target_name }}{% endblock %}
+{% block panel_lead %}کد ملی: {{ code_fa }} — عضویت: {{ joined_fa }}{% endblock %}
+
+{% block panel_content %}
+<div class="panel-mini panel-mini--two">
+    <a class="panel-mini__item" href="{% url 'panel_users' %}">
+        <span>بازگشت به فهرست کاربران</span>
+        <strong>کاربران</strong>
+    </a>
+    <span class="panel-mini__item">
+        <span>آخرین ورود: {{ last_login_fa }}</span>
+        <strong>{% if target.is_active %}فعال{% else %}غیرفعال{% endif %}</strong>
+    </span>
+</div>
+
+<div class="stat-grid stat-grid--compact">
+    <article class="stat-card">
+        <span class="stat-card__label">وعده‌های خریداری‌شده</span>
+        <strong class="stat-card__value">{{ meals_fa }} <span>وعده</span></strong>
+    </article>
+    <article class="stat-card">
+        <span class="stat-card__label">مجموع پرداخت</span>
+        <strong class="stat-card__value stat-card__value--small">{{ total_fa }}</strong>
+    </article>
+</div>
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">تغییر رمز عبور</h2>
+        <span class="panel-card__hint">رمز جدید را به دانش‌آموز اطلاع دهید.</span>
+    </div>
+    <form method="post" class="panel-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="password">
+        <div class="form-grid form-grid--narrow">
+            <label class="filter-field">
+                <span>رمز عبور جدید</span>
+                <input type="text" name="password" minlength="8" maxlength="128" placeholder="حداقل ۸ نویسه" autocomplete="new-password" required>
+            </label>
+        </div>
+        <div class="panel-form__actions">
+            <button class="btn btn--primary btn--sm" type="submit">ذخیرهٔ رمز جدید</button>
+        </div>
+    </form>
+</div>
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">وضعیت حساب</h2>
+    </div>
+    <div class="panel-form">
+        {% if is_self %}
+            <p class="panel-empty panel-empty--inline">حساب خودتان را نمی‌توانید غیرفعال کنید.</p>
+        {% elif target.is_active %}
+            <p class="panel-form__note">این کاربر فعال است و می‌تواند وارد شود.</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="toggle_active">
+                <button class="btn btn--danger btn--sm" type="submit">غیرفعال‌کردن حساب</button>
+            </form>
+        {% else %}
+            <p class="panel-form__note">این کاربر غیرفعال است و اجازهٔ ورود ندارد.</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="toggle_active">
+                <button class="btn btn--secondary btn--sm" type="submit">فعال‌کردن دوباره</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="panel-card">
+    <div class="panel-card__head">
+        <h2 class="panel-card__title">آخرین خریدها</h2>
+    </div>
+    {% if order_rows %}
+        <div class="panel-table-wrap">
+            <table class="panel-table">
+                <thead>
+                    <tr>
+                        <th>تاریخ پرداخت</th>
+                        <th>تعداد وعده</th>
+                        <th>مبلغ</th>
+                        <th>کد پیگیری</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in order_rows %}
+                        <tr>
+                            <td class="cell-nowrap">{{ row.paid_fa }}</td>
+                            <td>{{ row.items_fa }} وعده</td>
+                            <td class="cell-nowrap">{{ row.amount_fa }}</td>
+                            <td class="cell-code">{{ row.ref_id_fa }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="panel-empty">این کاربر هنوز خریدی انجام نداده است.</p>
+    {% endif %}
+</div>
+{% endblock %}

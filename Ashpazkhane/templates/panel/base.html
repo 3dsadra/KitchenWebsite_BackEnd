@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#ffffff">
+    <title>{% block title %}پنل مدیریت | آشپزخانه{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/icon-192.png' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="page-panel">
+    <a class="skip-link" href="#main">رفتن به محتوای اصلی</a>
+
+    <header class="panel-topbar">
+        <div class="container panel-topbar__inner">
+            <a class="brand" href="{% url 'panel' %}" aria-label="پنل مدیریت آشپزخانه">
+                <span class="brand__mark" aria-hidden="true">
+                    {% include "partials/logo_mark.html" %}
+                </span>
+                <span class="brand__text">
+                    <strong>پنل مدیریت</strong>
+                    <small>آشپزخانه دبیرستان علامه حلی 3</small>
+                </span>
+            </a>
+
+            <div class="panel-topbar__actions">
+                <span class="panel-user">{{ user.get_full_name|default:user.username }}</span>
+                <a class="btn btn--secondary btn--sm" href="{% url 'logout' %}">خروج</a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main" class="panel-main">
+        <div class="container">
+            {% if messages %}
+                <div class="flash-wrap">
+                    {% for message in messages %}
+                        <div class="flash flash--{{ message.tags }}" role="status">
+                            <span>{{ message }}</span>
+                            <button class="flash__close" type="button" aria-label="بستن پیام" data-flash-close>×</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="panel-head">
+                <div>
+                    <h1 class="panel-title">{% block panel_title %}پنل مدیریت{% endblock %}</h1>
+                    <p class="panel-lead">{% block panel_lead %}{% endblock %}</p>
+                </div>
+            </div>
+
+            <nav class="panel-tabs" aria-label="بخش‌های پنل مدیریت">
+                <a class="{% if request.resolver_match.url_name == 'panel' %}is-active{% endif %}" href="{% url 'panel' %}">داشبورد</a>
+                <a class="{% if request.resolver_match.url_name == 'panel_orders' %}is-active{% endif %}" href="{% url 'panel_orders' %}">سفارش‌ها</a>
+                <a class="{% if request.resolver_match.url_name == 'panel_finance' %}is-active{% endif %}" href="{% url 'panel_finance' %}">گزارش مالی</a>
+                <a class="{% if request.resolver_match.url_name == 'panel_payments' %}is-active{% endif %}" href="{% url 'panel_payments' %}">پرداخت‌ها</a>
+                <a class="{% if request.resolver_match.url_name == 'panel_users' or request.resolver_match.url_name == 'panel_user_detail' %}is-active{% endif %}" href="{% url 'panel_users' %}">کاربران</a>
+                <a class="{% if request.resolver_match.url_name == 'panel_menu' %}is-active{% endif %}" href="{% url 'panel_menu' %}">منوی ماه</a>
+            </nav>
+
+            {% block panel_content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="panel-footer">
+        <div class="container panel-footer__inner">
+            <span>پنل مدیریت سامانه آشپزخانه</span>
+            <span>{{ user.get_full_name|default:user.username }}</span>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/app.js' %}" defer></script>
+</body>
+</html>
