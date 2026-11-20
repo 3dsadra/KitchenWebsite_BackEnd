@@ -29,7 +29,6 @@ from .jalali import (
 
 
 def _safe_next(value: str | None, request=None) -> str:
-    """فقط آدرس‌های داخلی همین سایت را برای بازگشت می‌پذیرد."""
     if not value:
         return "/"
     host = request.get_host() if request is not None else None
@@ -153,7 +152,7 @@ def homepage(request):
     jalali_year, jalali_month, jalali_day = to_jalali(today)
     today_key = (jalali_year, jalali_month, jalali_day)
 
-    menus = list(MonthlyMenu.objects.all())  # جدیدترین‌ها اول
+    menus = list(MonthlyMenu.objects.all())
 
     selected = None
     requested = request.GET.get("m", "")
@@ -173,7 +172,6 @@ def homepage(request):
             None,
         ) or (menus[0] if menus else None)
 
-    # ناوبری ماه‌ها بر اساس ترتیب زمانی
     chronological = sorted(menus, key=lambda m: (m.year, m.month))
     prev_menu = next_menu = None
     if selected and selected in chronological:
@@ -216,7 +214,6 @@ def homepage(request):
     average_cost = round(total_cost / len(meals)) if meals else 0
     buyable = [cell for cell in cells if not cell.get("blank") and cell.get("can_buy")]
 
-    # وعدهٔ امروز
     today_menu = next(
         (m for m in menus if m.year == jalali_year and m.month == jalali_month), None
     )

@@ -1,5 +1,3 @@
-"""فایل‌های PWA: مانیفست و سرویس‌ورکر در ریشهٔ سایت."""
-
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.loader import render_to_string

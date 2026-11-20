@@ -49,7 +49,6 @@ def _env_bool(name: str, default: bool) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-jrx5rn6(+wu&we252^1%=a01*+r7*k9i5wi=leetw(!#psn73%",

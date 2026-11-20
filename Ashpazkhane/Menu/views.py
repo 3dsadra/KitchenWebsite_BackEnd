@@ -222,8 +222,6 @@ def checkout(request):
     removed = 0
     blocked = 0
 
-    # اعتبارسنجی دوبارهٔ سبد پیش از رفتن به درگاه، داخل یک تراکنش قفل‌شده
-    # تا ظرفیت و مهلت هم‌زمان توسط کاربر دیگری دور زده نشود.
     with transaction.atomic():
         order = (
             Order.objects.select_for_update()
@@ -242,7 +240,6 @@ def checkout(request):
             return redirect("orders:cart")
 
         menu_ids = {item.menu_id for item in items if item.menu_id}
-        # قفل‌کردن ردیف‌های منو با ترتیب ثابت برای جلوگیری از تداخل.
         list(
             MenuEntry.objects.select_for_update()
             .filter(menu_id__in=menu_ids)
@@ -353,7 +350,6 @@ def payment_callback(request):
         messages.error(request, "اطلاعات بازگشتی درگاه معتبر نیست.")
         return redirect("orders:cart")
 
-    # کد پرداخت ممکن است مربوط به یکی از تلاش‌های قبلی همان سفارش باشد.
     order = (
         Order.objects.filter(user=request.user)
         .filter(Q(authority=authority) | Q(attempts__authority=authority))

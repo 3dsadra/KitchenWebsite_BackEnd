@@ -1,9 +1,3 @@
-"""ابزارهای تقویم شمسی و قالب‌بندی فارسی (بدون وابستگی خارجی).
-
-پیاده‌سازی بر پایهٔ الگوریتم استاندارد جلالی است و فقط از داده‌های
-تقویم شمسی برای منوها استفاده می‌کند.
-"""
-
 import math
 from datetime import date
 
@@ -12,10 +6,8 @@ JALALI_MONTHS = [
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند",
 ]
 
-# هفته در ایران از شنبه شروع می‌شود
 WEEKDAYS = ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه"]
 
-# پنجشنبه و جمعه آشپزخانه تعطیل است.
 OFF_WEEKDAY_INDEXES = {5, 6}
 
 _DIGITS = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
@@ -27,12 +19,10 @@ _BREAKS = [
 
 
 def _tdiv(a: int, b: int) -> int:
-    """تقسیم صحیح با رفتار کوتاه‌کردن (مثل JavaScript)."""
     return a // b if a >= 0 else -((-a) // b)
 
 
 def _fmod(a: int, b: int) -> int:
-    """باقیمانده با علامت مقسوم (مثل JavaScript)."""
     return int(math.fmod(a, b))
 
 
@@ -113,7 +103,6 @@ def jalali_to_gregorian(jy: int, jm: int, jd: int) -> tuple[int, int, int]:
 
 
 def gregorian_to_jalali(gy: int, gm: int, gd: int) -> tuple[int, int, int]:
-    """تبدیل تاریخ میلادی به شمسی."""
     g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
     if gy > 1600:
         jy = 979
@@ -157,7 +146,6 @@ def fa_digits(value) -> str:
 
 
 def fa_number(value, separator: bool = True) -> str:
-    """عدد را با جداکنندهٔ هزارگان و ارقام فارسی برمی‌گرداند."""
     text = f"{int(value):,}" if separator else str(int(value))
     return text.replace(",", "٬").translate(_DIGITS)
 
@@ -167,7 +155,6 @@ def toman(value) -> str:
 
 
 def weekday_index(d: date) -> int:
-    """شنبه = ۰ ... جمعه = ۶"""
     return (d.weekday() + 2) % 7
 
 
@@ -181,7 +168,6 @@ def jalali_weekday(jy: int, jm: int, jd: int) -> date:
 
 
 def is_off_day(jy: int, jm: int, jd: int) -> bool:
-    """آیا این روز جزو تعطیلات آشپزخانه (پنجشنبه و جمعه) است؟"""
     return weekday_index(jalali_weekday(jy, jm, jd)) in OFF_WEEKDAY_INDEXES
 
 
@@ -205,7 +191,6 @@ def format_jalali_parts(jy: int, jm: int, jd: int, with_weekday: bool = False) -
 
 
 def month_label(menu) -> str:
-    """برچسب خوانا برای یک MonthlyMenu (سال و ماه شمسی)."""
     try:
         return f"{JALALI_MONTHS[menu.month - 1]} {fa_digits(menu.year)}"
     except (IndexError, TypeError):

@@ -1,5 +1,4 @@
 """اتصال ساده به درگاه پرداخت زرین‌پال (حالت آزمایشی / Sandbox)."""
-
 import json
 import urllib.error
 import urllib.request

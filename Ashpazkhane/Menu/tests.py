@@ -478,7 +478,6 @@ class CapacityTests(TestCase):
 
 
 class SecurityTests(TestCase):
-    """آزمون‌های امنیتی: دسترسی، تزریق اکسل، پرداخت و ورود."""
 
     def setUp(self):
         cache.clear()

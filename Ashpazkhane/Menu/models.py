@@ -63,8 +63,6 @@ class MenuEntry(models.Model):
 
 
 class Order(models.Model):
-    """سبد خرید و سفارش کاربر؛ هر کاربر یک سفارش «در انتظار پرداخت» دارد."""
-
     class Status(models.TextChoices):
         PENDING = "pending", "در انتظار پرداخت"
         PAID = "paid", "پرداخت‌شده"
@@ -112,8 +110,6 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    """یک وعدهٔ خریداری‌شده؛ اطلاعات غذا به‌صورت عکس‌لحظه‌ای ذخیره می‌شود."""
-
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     menu = models.ForeignKey(
         MonthlyMenu,
@@ -157,8 +153,6 @@ class OrderItem(models.Model):
 
 
 class PaymentAttempt(models.Model):
-    """هر تلاش پرداخت، موفق یا ناموفق، برای پیگیری مالی ثبت می‌شود."""
-
     class Status(models.TextChoices):
         REQUESTED = "requested", "درخواست پرداخت"
         VERIFIED = "verified", "تأییدشده"

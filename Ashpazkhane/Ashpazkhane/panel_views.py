@@ -1,5 +1,3 @@
-"""پنل مدیریت سایت: گزارش سفارش‌ها، کاربران و منوی ماهانه."""
-
 from datetime import date, timedelta
 from functools import wraps
 
@@ -68,7 +66,6 @@ EXCEL_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
 
 
 def _excel_text(value) -> str:
-    """جلوگیری از تزریق فرمول در فایل اکسل (CSV/Formula Injection)."""
     text = "" if value is None else str(value)
     if text.startswith(EXCEL_FORMULA_PREFIXES):
         return "'" + text
@@ -76,7 +73,6 @@ def _excel_text(value) -> str:
 
 
 def _password_error(password: str, *, code: str = "", staff: bool = False) -> str:
-    """اعتبارسنجی رمز عبور؛ برای حساب‌های مدیر سخت‌گیرتر است."""
     if len(password) < 8:
         return "رمز عبور باید حداقل ۸ نویسه باشد."
     if len(password) > 128:
@@ -380,7 +376,6 @@ def _orders_excel(rows, params) -> HttpResponse:
             cell.fill = header_fill
             cell.alignment = center
 
-    # ---------------------------- جزئیات ----------------------------
     detail = workbook.active
     detail.title = "جزئیات سفارش‌ها"
     detail.sheet_view.rightToLeft = True
@@ -429,7 +424,6 @@ def _orders_excel(rows, params) -> HttpResponse:
         detail.cell(row=row_number, column=3).alignment = center
     detail.freeze_panes = "A2"
 
-    # ---------------------------- خلاصه ----------------------------
     summary_sheet = workbook.create_sheet("خلاصه")
     summary_sheet.sheet_view.rightToLeft = True
     summary = _summarize(rows)
@@ -738,7 +732,6 @@ def menu_create(request):
 
 
 def _delivery_excel(rows, year: int, month: int, day: int) -> HttpResponse:
-    """فایل سادهٔ تحویل غذا برای یک روز: نام، کد ملی و غذا."""
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font, PatternFill
     from openpyxl.utils import get_column_letter
@@ -790,7 +783,6 @@ def _delivery_excel(rows, year: int, month: int, day: int) -> HttpResponse:
 def finance(request):
     rows = _all_paid_rows()
 
-    # ظرفیت هر ماه از منوها خوانده می‌شود.
     capacities: dict[str, int] = {}
     for menu_obj in MonthlyMenu.objects.prefetch_related("slots"):
         capacities[menu_obj.key] = sum(
